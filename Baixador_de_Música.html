@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <!--Define a codificação de caracteres como UTF-8 para aceitar acentos e caracteres especiais-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!--  Configura o layout para ser responsivo em dispositivos móveis.
+ -->
+  <title>Baixador de Música</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 40px;
+      color: #ffcc00;
+    }
+
+    .content {
+      padding: 20px;
+      margin-bottom: 70px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .search-box {
+      margin: 20px auto;
+      max-width: 400px;
+      display: flex;
+      align-items: center;
+      background: #f0f0f0;
+      border-radius: 30px;
+      padding: 10px 15px;
+    }
+
+    .search-box img {
+      width: 20px;
+      margin-right: 10px;
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+    }
+
+    .search-box button {
+      background: #ffcc00;
+      border: none;
+      border-radius: 50%;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .search-box button img {
+      width: 18px;
+      height: 18px;
+    }
+
+    .result-box {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .music-list {
+      margin-top: 15px;
+    }
+
+    .music-item {
+      background: #f5f5f5;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+    }
+
+    .menu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background: #fff;
+      border-top: 1px solid #ccc;
+      padding: 5px 0;
+    }
+
+    .menu-btn {
+      background: none;
+      border: none;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+      flex: 1;
+    }
+
+    .menu-btn img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .menu-btn.active {
+      color: #000;
+      font-weight: bold;
+    }
+
+    .link-botao {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #ffcc00;
+      color: black;
+      padding: 10px 15px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+
+    .link-botao img {
+      width: 20px;
+      height: 20px;
+      
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Baixador de música</h1>
+
+  <div class="content">
+    <div id="baixar" class="section active">
+      <div class="search-box">
+        <img src="/storage/emulated/0/Webcode/FG/Imagem site/download.png"/>
+        <input id="urlInput" type="text" placeholder="Cole o link da música">
+        <button onclick="simularDownload()">
+          <img src="/storage/emulated/0/Webcode/FG/Imagem site/search.png"/>
+        </button>
+      </div>
+      <div class="result-box" id="resultado"></div>
+    </div>
+
+    <div id="reproduzir" class="section">
+      <h3>Músicas baixadas</h3>
+      <div id="listaMusicas" class="music-list"></div>
+    </div>
+
+    <div id="configuracoes" class="section">
+      <h3>Configurações</h3>
+      <button onclick="abrirConfiguracoes()">Abrir configurações do sistema</button>
+
+      <!-- Botão estilizado para ver lista -->
+      <div style="text-align: center;">
+        <a href="tabela_das_Músicas.html" class="link-botao">
+          Ver tabelas de algumas músicas
+        </a>
+        <div style="text-align: center;">
+          <a  href="listbox.html" class="link-botao">
+            Ver a listbox
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu">
+    <button class="menu-btn active" data-target="baixar">
+      <img src="/storage/emulated/0/Webcode/FG/Imagem site/search.png" />
+      <div>Baixar</div>
+    </button>
+    <button class="menu-btn" data-target="reproduzir">
+      <img src="/storage/emulated/0/Webcode/FG/Imagem site/video.png" />
+      <div>Reproduzir</div>
+    </button>
+    <button class="menu-btn" data-target="configuracoes">
+      <img src="/storage/emulated/0/Webcode/FG/Imagem site/settings.png" />
+      <div>Configuração</div>
+    </button>
+  </div>
+
+  <script>
+    const menuBtns = document.querySelectorAll('.menu-btn');
+    const sections = document.querySelectorAll('.section');
+    const musicas = [];
+
+    menuBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        menuBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        sections.forEach(sec => sec.classList.remove('active'));
+        const alvo = btn.getAttribute('data-target');
+        document.getElementById(alvo).classList.add('active');
+
+        if (alvo === "reproduzir") {
+          atualizarListaMusicas();
+        }
+      });
+    });
+
+    function simularDownload() {
+      const url = document.getElementById("urlInput").value.trim();
+      const resultado = document.getElementById("resultado");
+
+      if (url === "") {
+        resultado.innerText = "Cole um link válido!";
+        resultado.style.color = "red";
+      } else {
+        resultado.innerText = "Música baixada com sucesso!";
+        resultado.style.color = "green";
+        musicas.push(url);
+        document.getElementById("urlInput").value = "";
+      }
+    }
+
+    function atualizarListaMusicas() {
+      const lista = document.getElementById("listaMusicas");
+      lista.innerHTML = "";
+
+      if (musicas.length === 0) {
+        lista.innerHTML = "<p>Nenhuma música baixada ainda.</p>";
+      } else {
+        musicas.forEach((musica, index) => {
+          const item = document.createElement("div");
+          item.className = "music-item";
+          item.innerText = `Música ${index + 1}: ${musica}`;
+          lista.appendChild(item);
+        });
+      }
+    }
+
+    function abrirConfiguracoes() {
+      if (/Android/i.test(navigator.userAgent)) {
+        window.location.href = "intent://settings#Intent;scheme=android.settings;end";
+      } else {
+        alert("Abra manualmente as configurações do sistema.");
+      }
+    }
+  </script>
+
+</body>
+</html>
